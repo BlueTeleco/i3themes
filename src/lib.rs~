@@ -1,5 +1,0 @@
-use std::env;
-
-pub fn run(input: String, output: String) {
-    println!("Input: {} --- Output: {}", input, output);
-}

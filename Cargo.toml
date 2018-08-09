@@ -1,0 +1,7 @@
+[package]
+name = "i3themes"
+version = "0.1.0"
+authors = ["lucas"]
+
+[dependencies]
+getopts = "0.2"

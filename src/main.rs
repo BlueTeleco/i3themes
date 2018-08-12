@@ -29,7 +29,10 @@ fn main() {
         return;
     }
     if matches.opt_present("l") {
-        println!("ToDo");
+        match i3themes::list() {
+            Ok(_o) => (),
+            Err(e) => println!("An error ocurred {}", e),
+        }
         return;
     }
     if matches.opt_present("t") {

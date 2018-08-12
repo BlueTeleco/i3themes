@@ -5,3 +5,4 @@ authors = ["lucas"]
 
 [dependencies]
 getopts = "0.2"
+yamlette = "0.0.5"

@@ -4,11 +4,19 @@ extern crate yamlette;
 use std::io;
 use std::fs;
 use std::fs::File;
+use std::error::Error;
 use std::io::prelude::*;
+
+enum Section {
+    Border(String),
+    Background(String),
+    Text(String),
+    Indicator(String),
+}
 
 pub fn run(input: String, output: String, theme: String) {
     let path = format!("themes/{}", theme);
-    println!("Input: {} --- Output: {} --- Theme: {:?}", input, output, path);
+    println!("Input: {} --- Output: {} --- Theme: {}", input, output, format_theme(path));
 }
 
 pub fn list() -> io::Result<()> {
@@ -17,13 +25,15 @@ pub fn list() -> io::Result<()> {
     for entry in fs::read_dir("themes")? {
         let entry = entry?;
         let path = entry.path();
+        let path = match path.to_str() {
+            Some(s) => s,
+            None => continue,
+        };
 
-        let mut f = match File::open(&path) {
-            Ok(f)   => f,
+        let contents = match file_contents(path) {
+            Ok(c) => c,
             Err(_e) => continue,
         };
-        let mut contents = String::new();
-        f.read_to_string(&mut contents)?;
 
         yamlette!(read; contents; [[
             {
@@ -45,3 +55,37 @@ pub fn list() -> io::Result<()> {
     }
     Ok(())
 }
+
+fn format_theme(theme: String) -> String {
+    let result = "#".repeat(5) + " i3themes configuration " + &"#".repeat(5);
+
+    let contents = match file_contents(&theme) {
+        Ok(c) => c,
+        Err(e) => {
+            println!("Error accesing the theme. Found following error: \n{}\n", e);
+            return result;
+        }
+    };
+    yamlette!(read; contents; [[
+        {
+            "window_colors" => {
+                "focused" => {
+                    "border" => (w_fc_border:&str)
+                }
+            }
+        }
+    ]]);
+    let result = match w_fc_border {
+        Some(s) => result + s,
+        None => result,
+    };
+    result
+}
+
+fn file_contents(path: &str) -> Result<String, Box<Error>> {
+    let mut contents = String::new();
+    let mut f = File::open(&path)?;
+    f.read_to_string(&mut contents)?;
+    Ok(contents)
+}
+

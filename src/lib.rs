@@ -1,18 +1,14 @@
-#[macro_use]
-extern crate yamlette;
+extern crate yaml_rust;
+
+mod yaml;
 
 use std::io;
 use std::fs;
 use std::fs::File;
 use std::error::Error;
+use yaml::get_yaml_str;
 use std::io::prelude::*;
-
-enum Section {
-    Border(String),
-    Background(String),
-    Text(String),
-    Indicator(String),
-}
+use yaml_rust::YamlLoader;
 
 pub fn run(input: String, output: String, theme: String) {
     let path = format!("themes/{}", theme);
@@ -34,22 +30,21 @@ pub fn list() -> io::Result<()> {
             Ok(c) => c,
             Err(_e) => continue,
         };
-
-        yamlette!(read; contents; [[
-            {
-                "meta" => {
-                    "description" => (desc:&str)
-                }
-            }
-        ]]);
-
-        let desc = match desc {
-            Some(d) => d,
-            None => "No available description",
+        let loader = &YamlLoader::load_from_str(&contents);
+        
+        let theme = match loader {
+            Ok(ym) => &ym[0],
+            Err(_e) => continue,
         };
+
+        let desc = match get_yaml_str(theme, "meta", "description", ""){
+            Some(s) => s,
+            None => "Description not found".to_string(),
+        };
+
         let name = match entry.file_name().into_string() {
             Ok(s) => s,
-            Err(_s) => String::new(),
+            Err(_s) => continue,
         };
         println!("\t{0: <20} {1: <5} {2: <100}", name, "-->", desc);
     }
@@ -57,27 +52,15 @@ pub fn list() -> io::Result<()> {
 }
 
 fn format_theme(theme: String) -> String {
-    let result = "#".repeat(5) + " i3themes configuration " + &"#".repeat(5);
+    let padding = "#".repeat(8);
+    let result = format!("{0} {1} {0}\n", padding, "i3themes configuration");
 
     let contents = match file_contents(&theme) {
         Ok(c) => c,
         Err(e) => {
             println!("Error accesing the theme. Found following error: \n{}\n", e);
-            return result;
+            return "".to_string();
         }
-    };
-    yamlette!(read; contents; [[
-        {
-            "window_colors" => {
-                "focused" => {
-                    "border" => (w_fc_border:&str)
-                }
-            }
-        }
-    ]]);
-    let result = match w_fc_border {
-        Some(s) => result + s,
-        None => result,
     };
     result
 }
@@ -88,4 +71,3 @@ fn file_contents(path: &str) -> Result<String, Box<Error>> {
     f.read_to_string(&mut contents)?;
     Ok(contents)
 }
-

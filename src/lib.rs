@@ -4,11 +4,7 @@ mod yaml;
 
 use std::io;
 use std::fs;
-use std::fs::File;
-use std::error::Error;
-use yaml::get_yaml_str;
-use std::io::prelude::*;
-use yaml_rust::YamlLoader;
+use yaml::*;
 
 pub fn run(input: String, output: String, theme: String) {
     let path = format!("themes/{}", theme);
@@ -26,18 +22,12 @@ pub fn list() -> io::Result<()> {
             None => continue,
         };
 
-        let contents = match file_contents(path) {
-            Ok(c) => c,
-            Err(_e) => continue,
-        };
-        let loader = &YamlLoader::load_from_str(&contents);
-        
-        let theme = match loader {
-            Ok(ym) => &ym[0],
+        let theme = match load_yaml(path) {
+            Ok(y) => y,
             Err(_e) => continue,
         };
 
-        let desc = match get_yaml_str(theme, "meta", "description", ""){
+        let desc = match get_yaml_str(&theme[0], "meta", "description", "") {
             Some(s) => s,
             None => "Description not found".to_string(),
         };
@@ -54,20 +44,5 @@ pub fn list() -> io::Result<()> {
 fn format_theme(theme: String) -> String {
     let padding = "#".repeat(8);
     let result = format!("{0} {1} {0}\n", padding, "i3themes configuration");
-
-    let contents = match file_contents(&theme) {
-        Ok(c) => c,
-        Err(e) => {
-            println!("Error accesing the theme. Found following error: \n{}\n", e);
-            return "".to_string();
-        }
-    };
     result
-}
-
-fn file_contents(path: &str) -> Result<String, Box<Error>> {
-    let mut contents = String::new();
-    let mut f = File::open(&path)?;
-    f.read_to_string(&mut contents)?;
-    Ok(contents)
 }

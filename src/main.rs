@@ -21,11 +21,11 @@ fn main() {
     };
 
     if matches.opt_present("h") {
-        help(opts);
+        i3themes::help(opts);
         return;
     }
     if matches.opt_present("v") {
-        println!("Version: 0.1.0");
+        i3themes::version();
         return;
     }
     if matches.opt_present("l") {
@@ -36,7 +36,7 @@ fn main() {
         return;
     }
     if matches.opt_present("t") {
-        println!("ToDo");
+        i3themes::to_theme();
         return;
     }
 
@@ -51,13 +51,9 @@ fn main() {
     let theme = if !matches.free.is_empty() {
         matches.free[0].clone()
     } else {
-        help(opts);
+        i3themes::help(opts);
         return;
     };
 
     i3themes::run(input, output, theme)
-}
-
-fn help(opts: Options) {
-    println!("{} \n\n{}", "Usage:", opts.usage("i3themes <theme> [options]"));
 }

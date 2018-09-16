@@ -124,7 +124,7 @@ fn get_ecolor(theme: &Yaml, color_set: &str, state: &str, element: &str) -> Opti
 
 fn file_contents(path: &str) -> Result<String, Box<Error>> {
     let mut contents = String::new();
-    let mut f = File::open(&path)?;
+    let mut f = File::open(path)?;
     f.read_to_string(&mut contents)?;
     Ok(contents)
 }

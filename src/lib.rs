@@ -2,6 +2,7 @@ extern crate yaml_rust;
 extern crate getopts;
 
 mod yaml;
+mod config_file;
 
 use std::io;
 use std::fs;
@@ -22,6 +23,8 @@ pub fn run(input: String, output: String, theme: String) {
     }
     println!("{}\n", yaml::window_theme(theme));
     println!("{}\n", yaml::bar_theme(theme));
+
+    config_file::bar_block("/home/lucas/.config/i3/config");
 }
 
 pub fn help(opts: Options) {

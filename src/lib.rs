@@ -25,7 +25,12 @@ pub fn run(input: String, output: String, theme: String) {
     println!("{}\n", yaml::bar_theme(theme));
 
     match config_file::bar_block("config") {
-        Ok(_o) => (),
+        Ok(cf) => {
+            for s in cf.bars {
+                println!("--------\n{}", s);
+            }
+            println!("{}", cf.rest);
+        }
         Err(e) => println!("Error: {}", e)
     }
 }

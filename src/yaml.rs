@@ -29,10 +29,7 @@ pub fn window_theme(theme: &Yaml) -> String {
     let win_types = ["focused", "unfocused", "focused_inactive", "urgent"];
 
     for e in &win_types {
-        let color = wstate_colors(theme, e).unwrap_or_else(|| {
-                println!("Error loading the theme, try again or submit a bug report");
-                "".to_string()
-        });
+        let color = wstate_colors(theme, e).unwrap_or("".to_string());
         result.push_str(&color);
     }
     result + "\n" + &"#".repeat(83)
@@ -41,20 +38,13 @@ pub fn window_theme(theme: &Yaml) -> String {
 pub fn bar_theme(theme: &Yaml) -> String {
     let padding = "#".repeat(26);
     let mut result = format!("{0} {1} {0}\n\n", padding, "i3themes bar configuration");
-    result.push_str("\tcolor {\n");
     let bar_types = ["focused_workspace", "active_workspace", "inactive_workspace", "urgent_workspace"];
 
-    let global = bglobal_colors(theme).unwrap_or_else(|| {
-            println!("Error loading the theme, try again or submit a bug report");
-            "".to_string()
-    });
-    result.push_str(&global);
+    result.push_str("\tcolor {\n");
+    result.push_str(&bglobal_colors(theme));
 
     for e in &bar_types {
-        let color = bstate_colors(theme, e).unwrap_or_else(|| {
-                println!("Error loading the theme, try again or submit a bug report");
-                "".to_string()
-        });
+        let color = bstate_colors(theme, e).unwrap_or("".to_string());
         result.push_str(&color);
     }
 
@@ -93,13 +83,16 @@ fn wstate_colors(theme: &Yaml, state: &str) -> Option<String> {
     Some(colors)
 }
 
-fn bglobal_colors(theme: &Yaml) -> Option<String> {
-    let separator = get_ecolor(theme, "bar_colors", "separator", "")?;
-    let background = get_ecolor(theme, "bar_colors", "background", "")?;
-    let statusline = get_ecolor(theme, "bar_colors", "statusline", "")?;
-
-    let colors = format!("\t\tseparator {}\n\t\tbackground {}\n\t\tstatusline {}\n", separator, background, statusline);
-    Some(colors)
+fn bglobal_colors(theme: &Yaml) -> String {
+    let mut colors = "".to_string();
+    let bar_elements = ["separator", "background", "statusline"];
+    for e in &bar_elements {
+        match get_ecolor(theme, "bar_colors", e, "") {
+            Some(c) => colors.push_str(&format!("\t\t{} {}\n", e, c)),
+            None => continue,
+        }
+    }
+    colors
 }
 
 fn bstate_colors(theme: &Yaml, state: &str) -> Option<String> {

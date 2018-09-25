@@ -24,7 +24,10 @@ pub fn run(input: String, output: String, theme: String) {
     println!("{}\n", yaml::window_theme(theme));
     println!("{}\n", yaml::bar_theme(theme));
 
-    config_file::bar_block("/home/lucas/.config/i3/config");
+    match config_file::bar_block("config") {
+        Ok(_o) => (),
+        Err(e) => println!("Error: {}", e)
+    }
 }
 
 pub fn help(opts: Options) {

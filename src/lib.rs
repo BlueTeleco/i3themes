@@ -17,21 +17,17 @@ pub fn run(input: String, output: String, theme: String) {
     });
     let theme = &theme[0];
 
-    println!("Input: {} --- Output: {}\n", input, output);
-    if let Some(s) = yaml::theme_vars(theme) {
-        println!("{}\n", s);
-    }
-    println!("{}\n", yaml::window_theme(theme));
-    println!("{}\n", yaml::bar_theme(theme));
+    let var_theme = yaml::theme_vars(theme);
+    let win_theme = yaml::window_theme(theme);
+    let bar_theme = yaml::bar_theme(theme);
 
-    match config_file::bar_block("config") {
-        Ok(cf) => {
-            for s in cf.bars {
-                println!("--------\n{}", s);
+    match config_file::output_file(&input, var_theme, win_theme, bar_theme) {
+        Ok(s) => {
+            if let Err(e) = fs::write(output, s) {
+                println!("Error when writing file: {}", e);
             }
-            println!("{}", cf.rest);
         }
-        Err(e) => println!("Error: {}", e)
+        Err(e) => println!("Error when opening input file: {} \nInput file: {}", e, input),
     }
 }
 

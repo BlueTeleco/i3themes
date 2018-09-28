@@ -42,11 +42,11 @@ fn main() {
 
     let input  = match matches.opt_str("c") {
         Some(i) => i,
-        None => "stdin".to_string(),
+        None => "/etc/i3/config".to_string(),
     };
     let output = match matches.opt_str("o") {
         Some(o) => o,
-        None => "stdout".to_string(),
+        None => "output.i3th".to_string(),
     };
     let theme = if !matches.free.is_empty() {
         matches.free[0].clone()

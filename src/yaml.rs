@@ -1,8 +1,7 @@
 extern crate yaml_rust;
 
-use std::fs::File;
+use std::fs;
 use std::error::Error;
-use std::io::prelude::*;
 use yaml_rust::{YamlLoader, Yaml};
 
 pub fn theme_vars(theme: &Yaml) -> Option<String> {
@@ -20,7 +19,7 @@ pub fn theme_vars(theme: &Yaml) -> Option<String> {
         result.push_str(&var);
     }
 
-    Some(result + "\n" + &"#".repeat(72))
+    Some(result)
 }
 
 pub fn window_theme(theme: &Yaml) -> String {
@@ -32,12 +31,11 @@ pub fn window_theme(theme: &Yaml) -> String {
         let color = wstate_colors(theme, e).unwrap_or("".to_string());
         result.push_str(&color);
     }
-    result + "\n" + &"#".repeat(83)
+    result
 }
 
 pub fn bar_theme(theme: &Yaml) -> String {
-    let padding = "#".repeat(26);
-    let mut result = format!("{0} {1} {0}\n\n", padding, "i3themes bar configuration");
+    let mut result = String::new();
     let bar_types = ["focused_workspace", "active_workspace", "inactive_workspace", "urgent_workspace"];
 
     result.push_str("\tcolor {\n");
@@ -49,11 +47,11 @@ pub fn bar_theme(theme: &Yaml) -> String {
     }
 
     result.push_str("\t}\n");
-    result + "\n" + &"#".repeat(80)
+    result
 }
 
 pub fn load_yaml(path: &str) -> Result<Vec<Yaml>, Box<Error>> {
-    let contents = file_contents(path)?;
+    let contents = fs::read_to_string(path)?;
     Ok(YamlLoader::load_from_str(&contents)?)
 }
 
@@ -113,11 +111,4 @@ fn get_ecolor(theme: &Yaml, color_set: &str, state: &str, element: &str) -> Opti
         ecolor.insert(0, '$');
     }
     Some(ecolor)
-}
-
-fn file_contents(path: &str) -> Result<String, Box<Error>> {
-    let mut contents = String::new();
-    let mut f = File::open(path)?;
-    f.read_to_string(&mut contents)?;
-    Ok(contents)
 }

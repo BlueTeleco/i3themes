@@ -13,9 +13,10 @@ pub fn theme_vars(theme: &Yaml) -> Option<String> {
                       .as_hash()?;
 
     for k in colors.keys() {
+        let prefix = "i3themes-".to_owned();
         let key = k.as_str()?;
         let val = colors.get(k)?.as_str()?;
-        let var = format!("set ${0: <15} {1: <10}\n", key, val);
+        let var = format!("set ${0: <25} {1: <10}\n", prefix + key, val);
         result.push_str(&var);
     }
 
@@ -38,7 +39,7 @@ pub fn bar_theme(theme: &Yaml) -> String {
     let mut result = String::new();
     let bar_types = ["focused_workspace", "active_workspace", "inactive_workspace", "urgent_workspace"];
 
-    result.push_str("\tcolor {\n");
+    result.push_str("\tcolors {\n");
     result.push_str(&bglobal_colors(theme));
 
     for e in &bar_types {
@@ -77,7 +78,7 @@ fn wstate_colors(theme: &Yaml, state: &str) -> Option<String> {
         elem_colors[n] = get_ecolor(theme, "window_colors", state, &win_elements[n])?;
     }
 
-    let colors = format!("client.{0: <20} {1: <15} {2: <15} {3: <15} {4: <15}\n", state, &elem_colors[0], &elem_colors[1], &elem_colors[2], &elem_colors[3]);
+    let colors = format!("client.{0: <20} {1: <25} {2: <25} {3: <25} {4: <25}\n", state, &elem_colors[0], &elem_colors[1], &elem_colors[2], &elem_colors[3]);
     Some(colors)
 }
 
@@ -108,7 +109,7 @@ fn bstate_colors(theme: &Yaml, state: &str) -> Option<String> {
 fn get_ecolor(theme: &Yaml, color_set: &str, state: &str, element: &str) -> Option<String> {
     let mut ecolor = get_yaml_str(theme, color_set, state, element)?;
     if !ecolor.starts_with('#') {
-        ecolor.insert(0, '$');
+        ecolor.insert_str(0, "$i3themes-");
     }
     Some(ecolor)
 }

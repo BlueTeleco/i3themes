@@ -17,7 +17,7 @@ fn main() {
 
     let matches = match opts.parse(&args[1..]) {
         Ok(m)  => m,
-        Err(e) => {panic!(e.to_string())}
+        Err(_e) => {panic!("Error parsing command line arguments")}
     };
 
     if matches.opt_present("h") {
@@ -38,11 +38,11 @@ fn main() {
 
     let input  = match matches.opt_str("c") {
         Some(i) => i,
-        None => "/etc/i3/config".to_string(),
+        None => "/etc/i3/config".to_owned(),
     };
     let output = match matches.opt_str("o") {
         Some(o) => o,
-        None => "output.i3th".to_string(),
+        None => "output.i3th".to_owned(),
     };
     if matches.opt_present("t") {
         i3themes::to_theme(input, output);

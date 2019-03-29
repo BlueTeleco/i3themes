@@ -66,7 +66,7 @@ pub fn list() -> io::Result<()> {
         };
 
         let desc = yaml::get_yaml_str(&theme[0], "meta", "description", "")
-                    .unwrap_or("Description not found".to_string());
+                    .unwrap_or("Description not found".to_owned());
 
         let name = match entry.file_name().into_string() {
             Ok(s) => s,

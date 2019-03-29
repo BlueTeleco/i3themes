@@ -11,9 +11,9 @@ fn main() {
     opts.optflag("h", "help",        "print this help menu");
     opts.optflag("v", "version",     "get current version");
     opts.optflag("l", "list-themes", "list available themes");
+    opts.optflag("t", "to-theme",    "creates an theme file");
     opts.optopt("c",  "",            "input config file",     "<config-file>");
     opts.optopt("o",  "",            "output config file",    "<output-file>");
-    opts.optopt("t",  "to-theme",    "creates an theme file", "<theme-file>");
 
     let matches = match opts.parse(&args[1..]) {
         Ok(m)  => m,
@@ -35,10 +35,6 @@ fn main() {
         }
         return;
     }
-    if matches.opt_present("t") {
-        i3themes::to_theme();
-        return;
-    }
 
     let input  = match matches.opt_str("c") {
         Some(i) => i,
@@ -48,6 +44,11 @@ fn main() {
         Some(o) => o,
         None => "output.i3th".to_string(),
     };
+    if matches.opt_present("t") {
+        i3themes::to_theme(input, output);
+        return;
+    }
+
     let theme = if !matches.free.is_empty() {
         matches.free[0].clone()
     } else {

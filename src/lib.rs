@@ -3,6 +3,7 @@ extern crate getopts;
 
 mod yaml;
 mod config_file;
+mod theme_file;
 
 use std::io;
 use std::fs;
@@ -39,8 +40,13 @@ pub fn version() {
     println!("Version: 0.1.0");
 }
 
-pub fn to_theme() {
-    println!("ToDo");
+pub fn to_theme(input: String, output: String) {
+    match theme_file::output_file(&input) {
+        Ok(s) => {
+            println!("{}", s);
+        }
+        Err(e) => println!("Error when opening input file: {} \nInput file: {}", e, input),
+    }
 }
 
 pub fn list() -> io::Result<()> {

@@ -4,9 +4,50 @@ use std::fs;
 use std::error::Error;
 use yaml_rust::{YamlLoader, Yaml};
 
+/// Load contents of a yaml file into an Yaml object.
+///
+/// * `path` - Path to yaml file
+///
+pub fn load_yaml(path: &str) -> Result<Vec<Yaml>, Box<Error>> {
+    let contents = fs::read_to_string(path)?;
+    Ok(YamlLoader::load_from_str(&contents)?)
+}
+
+/// Get string from a yaml hierarchy.
+///
+/// * `first`  - First key in hierarchy
+/// * `second` - Second key in hierarchy or empty str
+/// * `third`  - Third key in hierarchy or empty str
+///
+pub fn get_yaml_str(yaml: &Yaml, first: &str, second: &str, third: &str) -> Option<String> {
+    let h = yaml.as_hash()?;
+    if first != "" {
+        let value = h.get(&Yaml::from_str(first))?;
+        match value {
+            Yaml::String(s) => Some(s.to_string()),
+            Yaml::Hash(_h) => get_yaml_str(value, second, third, ""),
+            _ => None,
+        }
+    } else {
+        None
+    }
+}
+
+fn get_ecolor(theme: &Yaml, color_set: &str, state: &str, element: &str) -> Option<String> {
+    let mut ecolor = get_yaml_str(theme, color_set, state, element)?;
+    if !ecolor.starts_with('#') {
+        ecolor.insert_str(0, "$i3themes-");
+    }
+    Some(ecolor)
+}
+
+/// Obtain variables from the theme file in a way that
+/// can be added to the configuration file.
+///
+/// * `theme` - Yaml object with the theme
+///
 pub fn theme_vars(theme: &Yaml) -> Option<String> {
-    let padding = "#".repeat(26);
-    let mut result = format!("{0} {1} {0}\n\n", padding, "i3themes variables");
+    let mut result = format!("{:#^100}\n\n", " i3themes variables ");
 
     let colors = theme.as_hash()?
                       .get(&Yaml::from_str("colors"))?
@@ -23,9 +64,13 @@ pub fn theme_vars(theme: &Yaml) -> Option<String> {
     Some(result)
 }
 
+/// Obtain window colors from the theme file in a way that
+/// can be added to the configuration file.
+///
+/// * `theme` - Yaml object with the theme
+///
 pub fn window_theme(theme: &Yaml) -> String {
-    let padding = "#".repeat(26);
-    let mut result = format!("{0} {1} {0}\n\n", padding, "i3themes window configuration");
+    let mut result = format!("{:#^100}\n\n", " i3themes window configuration ");
     let win_types = ["focused", "unfocused", "focused_inactive", "urgent"];
 
     for e in &win_types {
@@ -35,6 +80,23 @@ pub fn window_theme(theme: &Yaml) -> String {
     result
 }
 
+fn wstate_colors(theme: &Yaml, state: &str) -> Option<String> {
+    let win_elements = ["border", "background", "text", "indicator"];
+    let mut elem_colors = [String::new(), String::new(), String::new(), String::new()];
+
+    for n in 0..4 {
+        elem_colors[n] = get_ecolor(theme, "window_colors", state, &win_elements[n])?;
+    }
+
+    let colors = format!("client.{0: <20} {1: <25} {2: <25} {3: <25} {4: <25}\n", state, &elem_colors[0], &elem_colors[1], &elem_colors[2], &elem_colors[3]);
+    Some(colors)
+}
+
+/// Obtain bar colors from the theme file in a way that
+/// can be added to the configuration file.
+///
+/// * `theme` - Yaml object with the theme
+///
 pub fn bar_theme(theme: &Yaml) -> String {
     let mut result = String::new();
     let bar_types = ["focused_workspace", "active_workspace", "inactive_workspace", "urgent_workspace"];
@@ -49,37 +111,6 @@ pub fn bar_theme(theme: &Yaml) -> String {
 
     result.push_str("\t}\n");
     result
-}
-
-pub fn load_yaml(path: &str) -> Result<Vec<Yaml>, Box<Error>> {
-    let contents = fs::read_to_string(path)?;
-    Ok(YamlLoader::load_from_str(&contents)?)
-}
-
-pub fn get_yaml_str(yaml: &Yaml, first: &str, second: &str, third: &str) -> Option<String> {
-    let h = yaml.as_hash()?;
-    if first != "" {
-        let value = h.get(&Yaml::from_str(first))?;
-        match value {
-            Yaml::String(s) => Some(s.to_string()),
-            Yaml::Hash(_h) => get_yaml_str(value, second, third, ""),
-            _ => None,
-        }
-    } else {
-        None
-    }
-}
-
-fn wstate_colors(theme: &Yaml, state: &str) -> Option<String> {
-    let win_elements = ["border", "background", "text", "indicator"];
-    let mut elem_colors = [String::new(), String::new(), String::new(), String::new()];
-
-    for n in 0..4 {
-        elem_colors[n] = get_ecolor(theme, "window_colors", state, &win_elements[n])?;
-    }
-
-    let colors = format!("client.{0: <20} {1: <25} {2: <25} {3: <25} {4: <25}\n", state, &elem_colors[0], &elem_colors[1], &elem_colors[2], &elem_colors[3]);
-    Some(colors)
 }
 
 fn bglobal_colors(theme: &Yaml) -> String {
@@ -104,12 +135,4 @@ fn bstate_colors(theme: &Yaml, state: &str) -> Option<String> {
 
     let colors = format!("\t\t{0: <20} {1: <15} {2: <15} {3: <15} \n", state, &elem_colors[0], &elem_colors[1], &elem_colors[2]);
     Some(colors)
-}
-
-fn get_ecolor(theme: &Yaml, color_set: &str, state: &str, element: &str) -> Option<String> {
-    let mut ecolor = get_yaml_str(theme, color_set, state, element)?;
-    if !ecolor.starts_with('#') {
-        ecolor.insert_str(0, "$i3themes-");
-    }
-    Some(ecolor)
 }

@@ -10,6 +10,12 @@ use std::fs;
 use yaml_rust::Yaml;
 use getopts::Options;
 
+/// Apply a theme to a specified i3wm configuration file
+///
+/// * `input`  - Path to input configuration file
+/// * `output` - Path to output configuration file
+/// * `theme`  - Path to theme to be applied
+///
 pub fn run(input: String, output: String, theme: String) {
     let path = format!("themes/{}", theme);
     let theme = yaml::load_yaml(&path).unwrap_or_else(|_e| {
@@ -18,11 +24,13 @@ pub fn run(input: String, output: String, theme: String) {
     });
     let theme = &theme[0];
 
-    let var_theme = yaml::theme_vars(theme);
-    let win_theme = yaml::window_theme(theme);
-    let bar_theme = yaml::bar_theme(theme);
+    let config_theme = config_file::ConfigTheme {
+        vars:    yaml::theme_vars(theme),
+        windows: yaml::window_theme(theme),
+        bars:    yaml::bar_theme(theme),
+    };
 
-    match config_file::output_file(&input, var_theme, win_theme, bar_theme) {
+    match config_file::output_file(&input, config_theme) {
         Ok(s) => {
             if let Err(e) = fs::write(output, s) {
                 println!("Error when writing file: {}", e);
@@ -32,14 +40,25 @@ pub fn run(input: String, output: String, theme: String) {
     }
 }
 
+/// Print help message
+///
+/// * `opts` - Command line options
+///
 pub fn help(opts: Options) {
     println!("{} \n\n{}", "Usage:", opts.usage("i3themes <theme> [options]"));
 }
 
+/// Print version
+///
 pub fn version() {
     println!("Version: 0.1.0");
 }
 
+/// Extract theme as yaml
+///
+/// * `input`  - Path to input configuration file
+/// * `output` - Path to output theme file
+///
 pub fn to_theme(input: String, output: String) {
     match theme_file::output_file(&input) {
         Ok(s) => {
@@ -49,6 +68,8 @@ pub fn to_theme(input: String, output: String) {
     }
 }
 
+/// List possible themes
+///
 pub fn list() -> io::Result<()> {
     println!("Available themes:\n");
 

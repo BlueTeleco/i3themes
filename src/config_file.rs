@@ -3,23 +3,34 @@ use std::fs::File;
 use std::error::Error;
 use std::io::{BufRead, BufReader};
 
+pub struct ConfigTheme {
+    pub vars:    Option<String>,
+    pub windows: String,
+    pub bars:    String,
+}
+
 pub struct ConfigFile {
     pub bars: Vec<String>,
     pub rest: String,
 }
 
-pub fn output_file(path: &str, var_theme: Option<String>, win_theme: String, bar_theme: String) -> Result<String, Box<Error>> {
+/// Create the new configuration file adding the specified theme.
+///
+/// * `path`  - Path to the configuration file to modify
+/// * `theme` - Theme to apply to the configuration file
+///
+pub fn output_file(path: &str, theme: ConfigTheme) -> Result<String, Box<Error>> {
     let file = File::open(path)?;
 
     let ConfigFile{bars, mut rest} = bars_in_file(&file);
-    if let Some(s) = var_theme {
+    if let Some(s) = theme.vars {
         rest.push_str(&s);
         rest.push_str("\n\n");
     }
-    rest.push_str(&win_theme);
+    rest.push_str(&theme.windows);
     rest.push_str("\n\n");
     for b in bars {
-        let s = replace_colors(b, &bar_theme);
+        let s = replace_colors(b, &theme.bars);
         rest.push_str(&s);
         rest.push_str("\n\n");
     }
@@ -65,8 +76,7 @@ fn bars_in_file(file: &File) -> ConfigFile {
 }
 
 fn replace_colors(bar: String, colors: &str) -> String {
-    let padding = "#".repeat(26);
-    let mut result = format!("{0} {1} {0}\n\n", padding, "i3themes bar configuration");
+    let mut result = format!("{:#^100}\n\n", " i3themes bar configuration ");
     let mut lines = bar.lines();
     
     result.push_str(lines.next().unwrap_or(""));

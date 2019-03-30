@@ -4,23 +4,24 @@ use std::error::Error;
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Seek, SeekFrom};
 
+/// Create the new yaml theme file from the selected
+/// configuration file.
+///
+/// * `path`  - Path to the configuration file to modify
+///
 pub fn output_file(path: &str) -> Result<String, Box<Error>> {
     let mut file = File::open(path)?;
 
     let vars = theme_vars(&file);
-    println!("{:?}", vars);
+    println!("{:#?}", vars);
 
     file.seek(SeekFrom::Start(0));
     let windows = window_colors(&file);
-    for s in windows {
-        println!("{}", s);
-    }
+    println!("{:#?}", windows);
 
     file.seek(SeekFrom::Start(0));
     let bars = bar_colors(&file);
-    for s in bars {
-        println!("{}", s);
-    }
+    println!("{:#?}", bars);
 
     Ok("HOla".to_owned())
 }

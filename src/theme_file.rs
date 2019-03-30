@@ -15,15 +15,15 @@ pub fn output_file(path: &str) -> Result<String, Box<Error>> {
     let vars = theme_vars(&file);
     println!("{:#?}", vars);
 
-    file.seek(SeekFrom::Start(0));
+    file.seek(SeekFrom::Start(0)).unwrap();
     let windows = window_colors(&file);
     println!("{:#?}", windows);
 
-    file.seek(SeekFrom::Start(0));
+    file.seek(SeekFrom::Start(0)).unwrap();
     let bars = bar_colors(&file);
     println!("{:#?}", bars);
 
-    Ok("HOla".to_owned())
+    Ok("".to_owned())
 }
 
 fn theme_vars(file: &File) -> HashMap<String, String> {

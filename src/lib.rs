@@ -40,20 +40,6 @@ pub fn run(input: String, output: String, theme: String) {
     }
 }
 
-/// Print help message
-///
-/// * `opts` - Command line options
-///
-pub fn help(opts: Options) {
-    println!("{} \n\n{}", "Usage:", opts.usage("i3themes <theme> [options]"));
-}
-
-/// Print version
-///
-pub fn version() {
-    println!("Version: 0.1.0");
-}
-
 /// Extract theme as yaml
 ///
 /// * `input`  - Path to input configuration file
@@ -98,3 +84,17 @@ pub fn list() -> io::Result<()> {
     Ok(())
 }
 
+
+/// Print help message
+///
+/// * `opts` - Command line options
+///
+pub fn help(opts: Options) {
+    println!("{} \n\n{}", "Usage:", opts.usage("i3themes [<theme>] [options]"));
+}
+
+/// Print version
+///
+pub fn version() {
+    println!("Version: 0.1.0");
+}

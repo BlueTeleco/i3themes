@@ -1,8 +1,8 @@
 extern crate yaml_rust;
 
 use std::fs;
+use yaml_rust::*;
 use std::error::Error;
-use yaml_rust::{YamlLoader, Yaml};
 
 /// Load contents of a yaml file into an Yaml object.
 ///

@@ -10,6 +10,8 @@ use std::fs;
 use yaml_rust::Yaml;
 use getopts::Options;
 
+const THEMES_DIR: &str = "themes";
+
 /// Apply a theme to a specified i3wm configuration file
 ///
 /// * `input`  - Path to input configuration file
@@ -17,7 +19,7 @@ use getopts::Options;
 /// * `theme`  - Path to theme to be applied
 ///
 pub fn run(input: String, output: String, theme: String) {
-    let path = format!("themes/{}", theme);
+    let path = format!("{}/{}", THEMES_DIR, theme);
     let theme = yaml::load_yaml(&path).unwrap_or_else(|_e| {
             println!("Error loading the theme, try again or submit a bug report");
             vec![Yaml::BadValue]
@@ -59,7 +61,7 @@ pub fn to_theme(input: String, output: String) {
 pub fn list() -> io::Result<()> {
     println!("Available themes:\n");
 
-    for entry in fs::read_dir("themes")? {
+    for entry in fs::read_dir(THEMES_DIR)? {
         let entry = entry?;
         let path = entry.path();
         let path = match path.to_str() {

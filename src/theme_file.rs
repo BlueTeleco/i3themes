@@ -53,11 +53,6 @@ pub fn output_file(path: &str) -> Result<String, Box<Error>> {
     file.seek(SeekFrom::Start(0)).unwrap();
     let windows = window_colors(&file);
     println!("{:#?}", windows);
-    for win in windows {
-        let mut ele = win.split_whitespace();
-        let mut typ = ele.next().unwrap();
-        println!("{:#?}", typ);
-    }
 
     file.seek(SeekFrom::Start(0)).unwrap();
     let bars = bar_colors(&file);
@@ -93,7 +88,7 @@ fn theme_vars(file: &File) -> HashMap<String, String> {
     vars
 }
 
-fn window_colors(file: &File) -> Vec<String> {
+fn window_colors(file: &File) -> Vec<Vec<String>> {
     BufReader::new(file)
                 .lines()
                 .filter_map(|l| l.ok())
@@ -102,10 +97,11 @@ fn window_colors(file: &File) -> Vec<String> {
                 .map(|l| l.replace("$", ""))
                 .map(|l| l.replace("i3themes-", ""))
                 .map(|l| l.trim().to_owned())
-                .collect::<Vec<String>>()
+                .map(|l| l.split_whitespace().map(|w| w.to_owned()).collect::<Vec<String>>())
+                .collect()
 }
 
-fn bar_colors(file: &File) -> Vec<String> {
+fn bar_colors(file: &File) -> Vec<Vec<String>> {
     BufReader::new(file)
                 .lines()
                 .filter_map(|l| l.ok())
@@ -114,6 +110,6 @@ fn bar_colors(file: &File) -> Vec<String> {
                 .map(|l| l.replace("$", ""))
                 .map(|l| l.replace("i3themes-", ""))
                 .map(|l| l.trim().to_owned())
-                .filter(|l| !l.starts_with('#'))
-                .collect::<Vec<String>>()
+                .map(|l| l.split_whitespace().map(|w| w.to_owned()).collect::<Vec<String>>())
+                .collect()
 }

@@ -15,10 +15,10 @@ use self::serde::{Serialize, Deserialize};
 ///
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Theme {
-    meta: Option<HashMap<String, String>>,
-    colors: Option<HashMap<String, String>>,
-    window_colors: WinColors,
-    bar_colors: BarColors,
+    pub meta: Option<HashMap<String, String>>,
+    pub colors: Option<HashMap<String, String>>,
+    pub window_colors: WinColors,
+    pub bar_colors: BarColors,
 }
 
 impl Theme {
@@ -53,6 +53,27 @@ pub struct WinColors {
     focused_inactive: HashMap<String, String>,
     unfocused: HashMap<String, String>,
     urgent: HashMap<String, String>,
+}
+
+impl WinColors {
+    /// Construct the colors in a way that can be added
+    /// to the configuration file.
+    ///
+    pub fn colors(&self) -> String {
+        let mut result = format!("{:#^100}\n\n", " i3themes window configuration ");
+        if let Some(ref background) = self.background {
+            result.push_str(&format!("client.background {}\n", background))
+        }
+        result.push_str(&self.format(&self.focused, "focused"));
+        result.push_str(&self.format(&self.focused_inactive, "focused_inactive"));
+        result.push_str(&self.format(&self.unfocused, "unfocused"));
+        result.push_str(&self.format(&self.urgent, "urgent"));
+        result
+    }
+
+    fn format(&self, state: &HashMap<String, String>, title: &str) -> String {
+        format!("client.{0: <20} {1: <25} {2: <25} {3: <25} {4: <25}\n", title, state["border"], state["background"], state["text"], state["indicator"])
+    }
 }
 
 /// Struct to hold the theme colors for the bar.

@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use self::serde::{Serialize, Deserialize};
 
 /// Struct to hold the information of some i3-wm theme. 
+///
 /// * `meta` - Optional information about the theme.
 /// * `colors` - Optional maping of color name to values.
 /// * `window_colors` - Window theme colors.
@@ -21,14 +22,15 @@ pub struct Theme {
 }
 
 impl Theme {
+    /// Construct the colors in a way that can be added
+    /// to the configuration file.
+    ///
     pub fn colors(&self) -> Option<String> {
         if let Some(ref colors) = self.colors {
             let mut result = format!("{:#^100}\n\n", " i3themes variables ");
-            for (k, v) in colors {
-                let prefix = "i3themes-".to_owned();
-                let var = format!("set ${0: <25} {1: <10}\n", prefix + &k, v);
-                result.push_str(&var);
-            }
+            colors.iter()
+                  .map(|(k,v)| format!("set ${0: <25} {1: <10}\n", "i3themes-".to_owned() + &k, v))
+                  .for_each(|l| result.push_str(&l));
             Some(result)
         } else {
             None
@@ -37,6 +39,7 @@ impl Theme {
 }
 
 /// Struct to hold the theme colors for the windows.
+///
 /// * `background` - Optional background color.
 /// * `focused` - Color for focused window.
 /// * `focused_inactive` - Color for inactive window.
@@ -53,6 +56,7 @@ pub struct WinColors {
 }
 
 /// Struct to hold the theme colors for the bar.
+///
 /// * `separator` - Separator color.
 /// * `background` - Background color.
 /// * `statusline` - Status line color.
@@ -92,6 +96,7 @@ impl From<serde_yaml::Error> for ThemeError {
 }
 
 /// Load theme from file.
+///
 /// * `path` - Path where the theme file is located.
 ///
 pub fn load(path: &str) -> Result<Theme, ThemeError> {

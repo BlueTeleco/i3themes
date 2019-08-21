@@ -29,7 +29,7 @@ impl Theme {
         if let Some(ref colors) = self.colors {
             let mut result = format!("{:#^100}\n\n", " i3themes variables ");
             colors.iter()
-                  .map(|(k,v)| format!("set ${0: <25} {1: <10}\n", "i3themes-".to_owned() + &k, v))
+                  .map(|(k,v)| format!("set {0: <25} {1: <10}\n", "i3themes-".to_owned() + &k, v))
                   .for_each(|l| result.push_str(&l));
             Some(result)
         } else {
@@ -143,6 +143,32 @@ impl From<serde_yaml::Error> for ThemeError {
 ///
 pub fn load(path: &str) -> Result<Theme, ThemeError> {
     let file = File::open(path)?;
-    let th: Theme = serde_yaml::from_reader(&file)?;
+    let mut th: Theme = serde_yaml::from_reader(&file)?;
+
+    match th.window_colors.background {
+        Some(ref mut bck) if !bck.starts_with('#') => bck.insert_str(0, "$i3themes-"),
+        _ => (),
+    };
+    prefix(&mut th.window_colors.focused);
+    prefix(&mut th.window_colors.focused_inactive);
+    prefix(&mut th.window_colors.unfocused);
+    prefix(&mut th.window_colors.urgent);
+
+    th.bar_colors.separator.insert_str(0, "$i3themes-");
+    th.bar_colors.background.insert_str(0, "$i3themes-");
+    th.bar_colors.statusline.insert_str(0, "$i3themes-");
+    prefix(&mut th.bar_colors.focused_workspace);
+    prefix(&mut th.bar_colors.active_workspace);
+    prefix(&mut th.bar_colors.inactive_workspace);
+    prefix(&mut th.bar_colors.urgent_workspace);
+
     Ok(th)
+}
+
+fn prefix(map: &mut HashMap<String, String>) {
+    map.iter_mut()
+        .filter(|(k,v)| !v.starts_with('#'))
+        .for_each(|(k,v)| {
+            v.insert_str(0, "$i3themes-")
+        });
 }

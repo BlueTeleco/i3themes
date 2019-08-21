@@ -1,13 +1,9 @@
 
+use super::theme::Theme;
+
 use std::fs::File;
 use std::error::Error;
 use std::io::{BufRead, BufReader};
-
-pub struct ConfigTheme {
-    pub vars:    Option<String>,
-    pub windows: String,
-    pub bars:    String,
-}
 
 pub struct ConfigFile {
     pub bars: Vec<String>,
@@ -19,18 +15,18 @@ pub struct ConfigFile {
 /// * `path`  - Path to the configuration file to modify
 /// * `theme` - Theme to apply to the configuration file
 ///
-pub fn output_file(path: &str, theme: ConfigTheme) -> Result<String, Box<Error>> {
+pub fn output_file(path: &str, theme: Theme) -> Result<String, Box<Error>> {
     let file = File::open(path)?;
 
     let ConfigFile{bars, mut rest} = bars_in_file(&file);
-    if let Some(s) = theme.vars {
+    if let Some(s) = theme.colors() {
         rest.push_str(&s);
         rest.push_str("\n\n");
     }
-    rest.push_str(&theme.windows);
+    rest.push_str(&theme.window_colors.colors());
     rest.push_str("\n\n");
     for b in bars {
-        let s = replace_colors(b, &theme.bars);
+        let s = replace_colors(b, &theme.bar_colors.colors());
         rest.push_str(&s);
         rest.push_str("\n\n");
     }
@@ -71,7 +67,6 @@ fn bars_in_file(file: &File) -> ConfigFile {
             result.rest.push_str("\n");
         }
     }
-
     result
 }
 

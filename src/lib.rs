@@ -24,24 +24,16 @@ pub fn run(input: String, output: String, theme: String) {
             println!("{:?}", e);
             process::exit(1);
     });
-    println!("{:#?}", theme.colors());
-    println!("{}", theme.window_colors.colors());
-    println!("{}", theme.bar_colors.colors());
 
-    // let config_theme = config_file::ConfigTheme {
-    //     vars:    yaml::theme_vars(theme),
-    //     windows: yaml::window_theme(theme),
-    //     bars:    yaml::bar_theme(theme),
-    // };
-    //
-    // match config_file::output_file(&input, config_theme) {
-    //     Ok(s) => {
-    //         if let Err(e) = fs::write(output, s) {
-    //             println!("Error when writing file: {}", e);
-    //         }
-    //     }
-    //     Err(e) => println!("Error when opening input file: {} \nInput file: {}", e, input),
-    // }
+    match config_file::output_file(&input, theme) {
+        Ok(s) => {
+            println!("{}", s);
+            // if let Err(e) = fs::write(output, s) {
+            //     println!("Error when writing file: {}", e);
+            // }
+        }
+        Err(e) => println!("Error when opening input file: {} \nInput file: {}", e, input),
+    }
 }
 
 /// Extract theme as yaml

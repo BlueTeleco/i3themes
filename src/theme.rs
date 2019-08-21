@@ -97,6 +97,27 @@ pub struct BarColors {
     urgent_workspace: HashMap<String, String>,
 }
 
+impl BarColors {
+    /// Construct the colors in a way that can be added
+    /// to the configuration file.
+    ///
+    pub fn colors(&self) -> String {
+        let mut result = "\tcolors {\n".to_owned();
+        result.push_str(&format!("\t\t{} {}\n", "separator", &self.separator));
+        result.push_str(&format!("\t\t{} {}\n", "background", &self.background));
+        result.push_str(&format!("\t\t{} {}\n", "statusline", &self.statusline));
+        result.push_str(&self.format(&self.focused_workspace, "focused_workspace"));
+        result.push_str(&self.format(&self.active_workspace, "active_workspace"));
+        result.push_str(&self.format(&self.inactive_workspace, "inactive_workspace"));
+        result.push_str(&self.format(&self.urgent_workspace, "urgent_workspace"));
+        result + "\t}\n"
+    }
+
+    fn format(&self, state: &HashMap<String, String>, title: &str) -> String {
+        format!("\t\t{0: <20} {1: <15} {2: <15} {3: <15} \n", title, state["border"], state["background"], state["text"])
+    }
+}
+
 /// Possible error when dealing with a theme.
 #[derive(Debug)]
 pub enum ThemeError {

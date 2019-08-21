@@ -20,6 +20,22 @@ pub struct Theme {
     bar_colors: BarColors,
 }
 
+impl Theme {
+    pub fn colors(&self) -> Option<String> {
+        if let Some(ref colors) = self.colors {
+            let mut result = format!("{:#^100}\n\n", " i3themes variables ");
+            for (k, v) in colors {
+                let prefix = "i3themes-".to_owned();
+                let var = format!("set ${0: <25} {1: <10}\n", prefix + &k, v);
+                result.push_str(&var);
+            }
+            Some(result)
+        } else {
+            None
+        }
+    }
+}
+
 /// Struct to hold the theme colors for the windows.
 /// * `background` - Optional background color.
 /// * `focused` - Color for focused window.

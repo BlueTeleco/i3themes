@@ -24,7 +24,8 @@ pub fn run(input: String, output: String, theme: String) {
             println!("{:?}", e);
             process::exit(1);
     });
-    println!("{:#?}", theme)
+    println!("{:#?}", theme);
+    println!("{:#?}", theme.colors());
 
     // let config_theme = config_file::ConfigTheme {
     //     vars:    yaml::theme_vars(theme),

@@ -27,10 +27,9 @@ pub fn run(input: String, output: String, theme: String) {
 
     match config_file::output_file(&input, theme) {
         Ok(s) => {
-            println!("{}", s);
-            // if let Err(e) = fs::write(output, s) {
-            //     println!("Error when writing file: {}", e);
-            // }
+            if let Err(e) = fs::write(output, s) {
+                println!("Error when writing file: {}", e);
+            }
         }
         Err(e) => println!("Error when opening input file: {} \nInput file: {}", e, input),
     }
@@ -53,30 +52,28 @@ pub fn to_theme(input: String, output: String) {
 /// List possible themes
 ///
 pub fn list() -> io::Result<()> {
-//     println!("Available themes:\n");
-//
-//     for entry in fs::read_dir(THEMES_DIR)? {
-//         let entry = entry?;
-//         let path = entry.path();
-//         let path = match path.to_str() {
-//             Some(s) => s,
-//             None => continue,
-//         };
-//
-//         let theme = match yaml::load_yaml(path) {
-//             Ok(y) => y,
-//             Err(_e) => continue,
-//         };
-//
-//         let desc = yaml::get_yaml_str(&theme[0], "meta", "description", "")
-//                     .unwrap_or("Description not found".to_owned());
-//
-//         let name = match entry.file_name().into_string() {
-//             Ok(s) => s,
-//             Err(_s) => continue,
-//         };
-//         println!("\t{0: <20} {1: <5} {2: <100}", name, "-->", desc);
-//     }
+    let default = "Description not found".to_owned();
+    println!("Available themes:\n");
+
+    for entry in fs::read_dir(THEMES_DIR)? {
+        let entry = entry?;
+        let path = entry.path();
+        let path = match path.to_str() {
+            Some(s) => s,
+            None => continue,
+        };
+
+        if let Ok(theme) = theme::load(path) {
+            if let Some(meta) = theme.meta {
+                let desc = meta.get("description").unwrap_or(&default);
+                let name = match entry.file_name().into_string() {
+                    Ok(s) => s,
+                    Err(_s) => continue,
+                };
+                println!("\t{0: <20} {1: <5} {2: <100}", name, "-->", desc);
+            }
+        };
+    }
     Ok(())
 }
 

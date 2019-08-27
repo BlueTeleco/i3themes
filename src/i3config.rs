@@ -2,7 +2,6 @@
 use super::theme::Theme;
 
 use std::fs::File;
-use std::error::Error;
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Seek, SeekFrom};
 
@@ -16,7 +15,7 @@ pub struct ConfigFile {
 /// * `path`  - Path to the configuration file to modify
 /// * `theme` - Theme to apply to the configuration file
 ///
-pub fn build_config(path: &str, theme: Theme) -> Result<String, Box<Error>> {
+pub fn build_config(path: &str, theme: Theme) -> std::io::Result<String> {
     let file = File::open(path)?;
 
     let ConfigFile{bars, mut rest} = bars_in_file(&file);
@@ -100,7 +99,7 @@ fn replace_colors(bar: String, colors: &str) -> String {
 ///
 /// * `path`  - Path to the configuration file to modify
 ///
-pub fn build_theme(path: &str) -> Result<String, Box<Error>> {
+pub fn build_theme(path: &str) -> std::io::Result<String> {
     let mut file = File::open(path)?;
 
     // hash.insert("meta".to_yaml(), meta().to_yaml());

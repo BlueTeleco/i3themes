@@ -10,39 +10,43 @@ const THEMES_DIR: &str = "themes";
 
 /// Apply a theme to a specified i3wm configuration file
 ///
-/// * `input`  - Path to input configuration file
-/// * `output` - Path to output configuration file
+/// * `config` - Path to configuration file
 /// * `theme`  - Path to theme to be applied
 ///
-pub fn change(input: &str, output: &str, theme: &str) {
+pub fn change(config: &str, theme: &str) {
     let path = format!("{}/{}", THEMES_DIR, theme);
-    let theme = theme::load(&path).unwrap_or_else(|e| {
-            println!("Error loading the theme, try again or submit a bug report");
-            println!("{:?}", e);
+    let theme = theme::load(&path).unwrap_or_else(|_e| {
+            println!("Error loading the theme, try again or submit a bug report. The selected theme may not be installed.");
             process::exit(1);
     });
 
-    match i3config::build_config(&input, theme) {
+    match i3config::build_config(&config, theme) {
         Ok(s) => {
-            if let Err(e) = fs::write(output, s) {
-                println!("Error when writing file: {}", e);
+            if let Err(_e) = fs::write(config, s) {
+                println!("Error when writing to file: {}", config);
             }
         }
-        Err(e) => println!("Error when opening input file: {} \nInput file: {}", e, input),
+        Err(_e) => println!("Error when opening config file: {}. File may not exist.", config),
     }
 }
 
 /// Extract theme as yaml
 ///
-/// * `input`  - Path to input configuration file
+/// * `config` - Path to configuration file
 /// * `output` - Path to output theme file
 ///
-pub fn extract(input: &str, output: &str) {
-    match i3config::build_theme(&input) {
+pub fn extract(config: &str, output: Option<&str>) {
+    match i3config::build_theme(&config) {
         Ok(s) => {
-            println!("{}", s);
+            if let Some(output) = output {
+                if let Err(_e) = fs::write(output, s) {
+                    println!("Error when writing to file: {}", output);
+                }
+            } else {
+                println!("{}", s);
+            }
         }
-        Err(e) => println!("Error when opening input file: {} \nInput file: {}", e, input),
+        Err(_e) => println!("Error when opening config file: {}. File may not exist.", config),
     }
 }
 

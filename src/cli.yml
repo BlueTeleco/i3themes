@@ -1,0 +1,45 @@
+name: "i3themes"
+version: "0.1.0"
+author: "lopukhov Github: https://github.com/lopukhov/i3themes"
+about: "Tool to change themes in i3-wm"
+subcommands:
+    - list:
+        about: "List available themes."
+    - install:
+        about: "Install a custom theme to the local repository. Add them to the default themes through github."
+        args:
+            - theme:
+                help: "Theme to install"
+                required: true
+                index: 1
+    - extract:
+        about: "Extract theme from an i3-wm configuration file."
+        args:
+            - config:
+                short: "c"
+                long: "config"
+                value_name: "CONFIG"
+                help: "Configuration file. In case it is missing it will look for the current configuration file."
+                takes_value: true
+            - output:
+                short: "o"
+                long: "output"
+                value_name: "OUTPUT"
+                help: "Output file. In case it is missing it will print to standard out."
+                takes_value: true
+    - change:
+        about: "Change theme"
+        args:
+            - config:
+                short: "c"
+                long: "config"
+                value_name: "CONFIG"
+                help: "Configuration file. In case it is missing it will look for the current configuration file."
+                takes_value: true
+            - theme:
+                short: "t"
+                long: "theme"
+                value_name: "THEME"
+                help: "Theme to apply to the configuration file"
+                takes_value: true
+                required: true

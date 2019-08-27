@@ -1,4 +1,3 @@
-extern crate getopts;
 
 mod theme;
 mod i3config;
@@ -6,7 +5,6 @@ mod i3config;
 use std::io;
 use std::fs;
 use std::process;
-use getopts::Options;
 
 const THEMES_DIR: &str = "themes";
 
@@ -16,7 +14,7 @@ const THEMES_DIR: &str = "themes";
 /// * `output` - Path to output configuration file
 /// * `theme`  - Path to theme to be applied
 ///
-pub fn run(input: String, output: String, theme: String) {
+pub fn change(input: &str, output: &str, theme: &str) {
     let path = format!("{}/{}", THEMES_DIR, theme);
     let theme = theme::load(&path).unwrap_or_else(|e| {
             println!("Error loading the theme, try again or submit a bug report");
@@ -39,7 +37,7 @@ pub fn run(input: String, output: String, theme: String) {
 /// * `input`  - Path to input configuration file
 /// * `output` - Path to output theme file
 ///
-pub fn to_theme(input: String, output: String) {
+pub fn extract(input: &str, output: &str) {
     match i3config::build_theme(&input) {
         Ok(s) => {
             println!("{}", s);
@@ -74,19 +72,4 @@ pub fn list() -> io::Result<()> {
         };
     }
     Ok(())
-}
-
-
-/// Print help message
-///
-/// * `opts` - Command line options
-///
-pub fn help(opts: Options) {
-    println!("{} \n\n{}", "Usage:", opts.usage("i3themes [<theme>] [options]"));
-}
-
-/// Print version
-///
-pub fn version() {
-    println!("Version: 0.1.0");
 }

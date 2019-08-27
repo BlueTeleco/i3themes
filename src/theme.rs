@@ -167,8 +167,8 @@ pub fn load(path: &str) -> Result<Theme, ThemeError> {
 
 fn prefix(map: &mut HashMap<String, String>) {
     map.iter_mut()
-        .filter(|(k,v)| !v.starts_with('#'))
-        .for_each(|(k,v)| {
+        .filter(|(_k,v)| !v.starts_with('#'))
+        .for_each(|(_k,v)| {
             v.insert_str(0, "$i3themes-")
         });
 }

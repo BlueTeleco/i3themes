@@ -1,8 +1,7 @@
 extern crate getopts;
 
 mod theme;
-mod config_file;
-mod theme_file;
+mod i3config;
 
 use std::io;
 use std::fs;
@@ -25,7 +24,7 @@ pub fn run(input: String, output: String, theme: String) {
             process::exit(1);
     });
 
-    match config_file::output_file(&input, theme) {
+    match i3config::build_config(&input, theme) {
         Ok(s) => {
             if let Err(e) = fs::write(output, s) {
                 println!("Error when writing file: {}", e);
@@ -41,12 +40,12 @@ pub fn run(input: String, output: String, theme: String) {
 /// * `output` - Path to output theme file
 ///
 pub fn to_theme(input: String, output: String) {
-//     match theme_file::output_file(&input) {
-//         Ok(s) => {
-//             println!("{}", s);
-//         }
-//         Err(e) => println!("Error when opening input file: {} \nInput file: {}", e, input),
-//     }
+    match i3config::build_theme(&input) {
+        Ok(s) => {
+            println!("{}", s);
+        }
+        Err(e) => println!("Error when opening input file: {} \nInput file: {}", e, input),
+    }
 }
 
 /// List possible themes

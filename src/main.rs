@@ -18,35 +18,13 @@ fn main() {
     let etc_location = PathBuf::from("/etc/i3/config");
 
     if let Some(matches) = matches.subcommand_matches("change") {
-        let config = matches.value_of("config").unwrap_or_else(|| {
-            if xdg_location.exists() {
-                xdg_location.to_str().unwrap()
-            } else if i3h_location.exists() {
-                i3h_location.to_str().unwrap()
-            } else if etc_location.exists() {
-                etc_location.to_str().unwrap()
-            } else {
-                println!("No config file found. See help menu for more options.");
-                process::exit(1);
-            }
-        });
+        let config = matches.value_of("config").unwrap_or(find_config(vec![&xdg_location, &i3h_location, &etc_location]));
         let theme = matches.value_of("theme").unwrap();
         i3themes::change(config, theme)
     }
 
     if let Some(matches) = matches.subcommand_matches("extract") {
-        let config = matches.value_of("config").unwrap_or_else(|| {
-            if xdg_location.exists() {
-                xdg_location.to_str().unwrap()
-            } else if i3h_location.exists() {
-                i3h_location.to_str().unwrap()
-            } else if etc_location.exists() {
-                etc_location.to_str().unwrap()
-            } else {
-                println!("No config file found. See help menu for more options.");
-                process::exit(1);
-            }
-        });
+        let config = matches.value_of("config").unwrap_or(find_config(vec![&xdg_location, &i3h_location, &etc_location]));
         let output = matches.value_of("output");
         i3themes::extract(config, output);
     }
@@ -61,6 +39,16 @@ fn main() {
         let theme = matches.value_of("theme");
         println!("Installing {}", theme.unwrap());
     }
+}
+
+fn find_config<'a>(configs: Vec<&'a PathBuf>) -> &'a str {
+    for conf in configs {
+        if conf.exists() {
+            return conf.to_str().unwrap();
+        }
+    }
+    println!("No config file found. See help menu for more options.");
+    process::exit(1);
 }
 
 fn home_subfile(file: &str) -> PathBuf {

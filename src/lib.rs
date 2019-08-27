@@ -77,3 +77,11 @@ pub fn list() -> io::Result<()> {
     }
     Ok(())
 }
+
+/// Installs the provided theme.
+///
+/// * `theme`  - Path to theme to be installed.
+///
+pub fn install(theme: &str) {
+    println!("Installing {}", theme);
+}

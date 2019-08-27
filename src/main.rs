@@ -37,10 +37,14 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("install") {
         let theme = matches.value_of("theme");
-        println!("Installing {}", theme.unwrap());
+        i3themes::install(theme.unwrap());
     }
 }
 
+/// Find system configuration file in use.
+///
+/// * `configs` - Vector with the possible paths of the config file.
+///
 fn find_config<'a>(configs: Vec<&'a PathBuf>) -> &'a str {
     for conf in configs {
         if conf.exists() {
@@ -51,6 +55,10 @@ fn find_config<'a>(configs: Vec<&'a PathBuf>) -> &'a str {
     process::exit(1);
 }
 
+/// Build a path for a file in the home directory.
+///
+/// * `file` - File found in the home directory.
+///
 fn home_subfile(file: &str) -> PathBuf {
     if let Some(mut home) = dirs::home_dir() {
         home.push(file);
